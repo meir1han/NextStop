@@ -9,7 +9,7 @@ import UIKit
 import MapKit
 import CoreLocation
 
-class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate  {
+class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, UIGestureRecognizerDelegate  {
     
     let map = MKMapView()
     
@@ -42,11 +42,35 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         map.delegate = self
         
+        let longTapGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongTapGesture(_:)))
+
+        map.addGestureRecognizer(longTapGesture)
         
         
 //        addCustomPin()
         
+        
     }
+    @objc func handleLongTapGesture(_ gestureRecognizer: UILongPressGestureRecognizer){
+        
+        if gestureRecognizer.state != UIGestureRecognizer.State.ended{
+            let touchLocation = gestureRecognizer.location(in: map)
+            let locationCoordinate = map.convert(touchLocation, toCoordinateFrom: map)
+            
+            let pin = MKPointAnnotation()
+            pin.coordinate = locationCoordinate
+            pin.title = "Pinned location"
+            pin.subtitle = "Created for testing"
+            
+            map.addAnnotation(pin)
+        }
+        
+        if gestureRecognizer.state != UIGestureRecognizer.State.began{
+            return
+        }
+        
+    }
+    
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -87,7 +111,11 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         return annotationView
         
+        
     }
+    
+    
+    
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
 
@@ -119,4 +147,5 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
 
 
 }
+
 
