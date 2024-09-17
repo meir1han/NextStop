@@ -9,11 +9,13 @@ import UIKit
 import MapKit
 import CoreLocation
 
-class ViewController: UIViewController, MKMapViewDelegate  {
+class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate  {
     
     let map = MKMapView()
     
     let coordinate = CLLocationCoordinate2D(latitude: 40.728, longitude: -74)
+    
+    let manager = CLLocationManager()
     
     let pinImage: UIImage? = {
         guard let image = UIImage(named: "pin") else { return nil }
@@ -40,19 +42,31 @@ class ViewController: UIViewController, MKMapViewDelegate  {
         
         map.delegate = self
         
-        addCustomPin()
+        
+        
+//        addCustomPin()
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        manager.desiredAccuracy = kCLLocationAccuracyBest
+        manager.delegate = self
+        manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
         
     }
    
-    func addCustomPin(){
-        let pin = MKPointAnnotation()
-        pin.coordinate = coordinate
-        pin.title = "Pinned location"
-        pin.subtitle = "Created for testing"
-        
-        map.addAnnotation(pin)
-        
-    }
+//    func addCustomPin(){
+//        let pin = MKPointAnnotation()
+//        pin.coordinate = coordinate
+//        pin.title = "Pinned location"
+//        pin.subtitle = "Created for testing"
+//        
+//        map.addAnnotation(pin)
+//        
+//    }
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         guard !(annotation is MKAnnotationView) else {
             return nil
@@ -72,6 +86,34 @@ class ViewController: UIViewController, MKMapViewDelegate  {
         annotationView?.image = pinImage
         
         return annotationView
+        
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+
+        if let location = locations.first {
+            manager.startUpdatingLocation()
+            
+            render(location)
+        }
+    }
+    
+    func render(_ location: CLLocation){
+        
+        let coordinate = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+        
+        let region = MKCoordinateRegion(center: coordinate, span: span)
+        
+        map.setRegion(region, animated: true)
+        
+        
+        let pin = MKPointAnnotation()
+        pin.coordinate = coordinate
+        pin.title = "Pinned location"
+        pin.subtitle = "Created for testing"
+        
+        map.addAnnotation(pin)
         
     }
 
