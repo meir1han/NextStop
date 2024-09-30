@@ -20,7 +20,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     let pinImage: UIImage? = {
         guard let image = UIImage(named: "pin") else { return nil }
 
-        let newSize = CGSize(width: 20, height: 20)  // Desired size
+        let newSize = CGSize(width: 20, height: 30)  // Desired size
         UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
         image.draw(in: CGRect(origin: .zero, size: newSize))
         let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
@@ -29,7 +29,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return resizedImage
     }()
 
-    
+    var checherAnnotaion: Bool = false
+    var AnnotationPinFirst = MKPointAnnotation()
         
     
     override func viewDidLoad() {
@@ -44,7 +45,9 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         let longTapGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongTapGesture(_:)))
 
+
         map.addGestureRecognizer(longTapGesture)
+        
         
         
 //        addCustomPin()
@@ -57,12 +60,25 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             let touchLocation = gestureRecognizer.location(in: map)
             let locationCoordinate = map.convert(touchLocation, toCoordinateFrom: map)
             
+//            DispatchQueue.main.async {
+//                if(self.checherAnnotaion){
+//                    self.map.removeAnnotation(self.AnnotationPinFirst)
+//                }
+//            }
+            if(self.checherAnnotaion){
+                self.map.removeAnnotation(self.AnnotationPinFirst)
+            }
+            
             let pin = MKPointAnnotation()
             pin.coordinate = locationCoordinate
             pin.title = "Pinned location"
             pin.subtitle = "Created for testing"
             
             map.addAnnotation(pin)
+            AnnotationPinFirst = pin
+            checherAnnotaion = true
+
+            
         }
         
         if gestureRecognizer.state != UIGestureRecognizer.State.began{
